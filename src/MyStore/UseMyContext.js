@@ -1,7 +1,7 @@
-import React, { createContext, useContext } from "react";
+import { createContext, useContext } from "react";
 
 // 1) Firstly Create Context
-export const MyContext = React.createContext();
+export const MyContext = createContext();
 
 // 2) Secondly We can use useMyContext anyWhere for Accessing Props 
 export const useMyContext = () => {

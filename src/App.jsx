@@ -31,7 +31,7 @@ function App() {
   }
   const deleteUsers = (id) => {
     setUsers((prev) => {
-      const deletedUser = prev.filter((_, user) => user + 1 !== id);
+      const deletedUser = prev.filter((_, user) => user + 1 !== id); //prev.filter((userObj, index) => index + 1 !== id);
       localStorage.setItem("data", JSON.stringify(deletedUser));
 
       return deletedUser

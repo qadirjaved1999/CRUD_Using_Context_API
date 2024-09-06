@@ -1,10 +1,10 @@
 import React from 'react'
-import { useMyContext } from '../MyStore/UseMyContext'
 import { useNavigate } from 'react-router-dom';
+import { useMyContext } from '../MyStore/UseMyContext'
 
 const Form = () => {
-    const {inputValue, setInputValue, initialInputValue, users, setUsers} = useMyContext();
     const navigate = useNavigate();
+    const {inputValue, setInputValue, initialInputValue, setUsers } = useMyContext();
     const inputHandler = (e) => {
         const {name, value} = e.target;
         setInputValue({
@@ -13,15 +13,12 @@ const Form = () => {
     }
     const saveFormData = (e) => {
        e.preventDefault();
-       setUsers([inputValue, inputValue
-       ]);
-       debugger;
-       console.log("=======>>>>>userArray",users);
-       localStorage.setItem("data", JSON.stringify([...users]));
+       const storedData = JSON.parse(localStorage.getItem("data")) || [];
+       const updatedUsers = [...storedData, inputValue];
+       localStorage.setItem("data", JSON.stringify(updatedUsers));
        setInputValue(initialInputValue);
-       debugger;
-    //    navigate('/users/data')
-      
+       setUsers(updatedUsers);
+       navigate('/users/data');
     }
     return (
         <div className='bg-green-400 p-[100px]'>

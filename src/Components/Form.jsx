@@ -13,13 +13,10 @@ const Form = () => {
     }
     const saveFormData = (e) => {
        e.preventDefault();
-       setUsers([inputValue, inputValue
-       ]);
-       debugger;
+       setUsers([...users, inputValue]);
        console.log("=======>>>>>userArray",users);
-       localStorage.setItem("data", JSON.stringify([...users]));
+       localStorage.setItem("data", JSON.stringify([...users, inputValue]));
        setInputValue(initialInputValue);
-       debugger;
     //    navigate('/users/data')
       
     }

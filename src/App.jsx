@@ -16,23 +16,33 @@ function App() {
   };
   const [inputValue, setInputValue] = useState(initialInputValue);
   const [users, setUsers] = useState([])
-  const [data, setData] = useState(null);
   // Data Fetched from Local Storage
   useEffect(() => {
-    // setInputValue(initialInputValue);
-    const usersdata = JSON.parse(localStorage.getItem("data"));
-    if (usersdata && usersdata.length > 0) {
-      setData(usersdata)
+    const storedData = JSON.parse(localStorage.getItem("data")) || [];
+    if (storedData && storedData.length > 0) {
+      setUsers(storedData);
     } else {
-      console("Data not found 404");
+      console.log("Data not found 404");
     }
-  }, [])
+  }, [setUsers]);
+  // Functionality
+  const updateUsers = (id) => {
+    console.log("App-------------", id);
+  }
+  const deleteUsers = (id) => {
+    setUsers((prev) => {
+      const deletedUser = prev.filter((_, user) => user + 1 !== id); //prev.filter((userObj, index) => index + 1 !== id);
+      localStorage.setItem("data", JSON.stringify(deletedUser));
+
+      return deletedUser
+    })
+  }
   return (
-    <MyProvider value={{ inputValue, setInputValue, initialInputValue, users, setUsers, data, setData }}>
+    <MyProvider value={{ inputValue, setInputValue, initialInputValue, users, setUsers, updateUsers, deleteUsers }}>
       <BrowserRouter>
         <Routes>
-          <Route path='/' element={<Form />}/>
-          <Route path='/users/data' element={<DataTable />}/>
+          <Route path='/' element={<Form />} />
+          <Route path='/users/data' element={<DataTable />} />
         </Routes>
       </BrowserRouter>
     </MyProvider>

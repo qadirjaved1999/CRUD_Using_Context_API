@@ -17,7 +17,7 @@ const Form = () => {
        console.log("=======>>>>>userArray",users);
        localStorage.setItem("data", JSON.stringify([...users, inputValue]));
        setInputValue(initialInputValue);
-    //    navigate('/users/data')
+       navigate('/users/data')
       
     }
     return (

@@ -1,92 +1,196 @@
-import React from 'react'
-import { useMyContext } from '../MyStore/UseMyContext'
-import { MdEditCalendar } from "react-icons/md";
-import { MdDeleteForever } from "react-icons/md";
+import React, { useMemo } from 'react';
+import { useMyContext } from '../MyStore/UseMyContext';
+import { MdEditCalendar, MdDeleteForever } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
+import { useTable, useGlobalFilter } from 'react-table'; // Import react-table hooks
 
-const DataTable = () => {
-    const { users, updateUsers, deleteUsers } = useMyContext();
-    const navigateToAddUser = useNavigate();
-    const addNewUser = () => {
-        navigateToAddUser('/');
-    }
-    return (
-        <div className="relative overflow-x-auto shadow-md sm:rounded-lg bg-gray-200">
-            <div className="flex justify-end items-end">
-                <div className="flex text-right">
-                    <h1 className="mr-[400px] text-2xl font-bold text-gray-800 pt-10 pb-10">My Users Data Table</h1>
-                    <button onClick={addNewUser} className="flex justify-center items-center bg-green-400 text-white font-bold h-10 mt-10 mr-5 p-5 rounded text-center">Add New Users</button>
-                </div>
-            </div>
-            <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                <thead className="text-xs text-white uppercase bg-black text-center">
-                    <tr>
-                        <th scope="col" className="px-6 py-3">
-                            Id
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            First Name
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Last Name
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Email
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Password
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Contact Number
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Gender
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Action
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {
-                        users.map((user, index) => (
-                            <tr key={index} className="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 text-center">
-                                <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                    {index + 1}
-                                </th>
-                                <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                    {user.fname}
-                                </th>
-                                <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                    {user.lname}
-                                </th>
-                                <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                    {user.email}
-                                </th>
-                                <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                    {user.password}
-                                </th>
-                                <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                    {user.contact}
-                                </th>
-                                <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                    {user.gender}
-                                </th>
-                                <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white text-center">
-                                    <div className='flex justify-center items-center text-center'>
-                                        <button  onClick={() => updateUsers(index + 1)} type="button" className="flex justify-center items-center text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">Edit <MdEditCalendar className="ml-1 text-xl"/></button>
-                                        <button  onClick={() => deleteUsers(index + 1)} type="button" className="flex justify-center items-center text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">Delete <MdDeleteForever className="ml-1 text-xl" /></button>
-                                    </div>
-                                </th>
-                            </tr>
-                        ))
-                    }
-
-                </tbody>
-            </table>
-        </div>
-
-    )
+// Default UI for global filtering
+function GlobalFilter({
+  globalFilter,
+  setGlobalFilter,
+}) {
+  return (
+    <input
+      className="block w-full p-2 mb-2 text-sm text-gray-900 border border-gray-300 rounded-lg"
+      value={globalFilter || ''}
+      onChange={(e) => {
+        setGlobalFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
+      }}
+      placeholder="Search user name..."
+    />
+  );
 }
 
-export default DataTable
+const DataTable = () => {
+  const { users, updateUsers, deleteUsers } = useMyContext(); 
+  const navigateToAddUser = useNavigate();
+
+  // Define columns for react-table
+  const columns = useMemo(
+    () => [
+      {
+        Header: 'Id',
+        accessor: (_, index) => index + 1, // Since your data doesn't have an id field
+        disableFilters: true, // Disable filtering on this column
+      },
+      {
+        Header: 'First Name',
+        accessor: 'fname',
+      },
+      {
+        Header: 'Last Name',
+        accessor: 'lname',
+      },
+      {
+        Header: 'Email',
+        accessor: 'email',
+      },
+      {
+        Header: 'Password',
+        accessor: 'password',
+        disableFilters: true, // Disable filtering on this column
+      },
+      {
+        Header: 'Contact Number',
+        accessor: 'contact',
+        disableFilters: true, // Disable filtering on this column
+      },
+      {
+        Header: 'Gender',
+        accessor: 'gender',
+        disableFilters: true, // Disable filtering on this column
+      },
+      {
+        Header: 'Action',
+        Cell: ({ row }) => (
+          <div className="flex justify-center items-center">
+            <button
+              onClick={() => updateUsers(row.index)}
+              type="button"
+              className="flex items-center text-white bg-green-500 hover:bg-green-600 font-medium rounded-lg text-sm px-4 py-2 mr-2"
+            >
+              Edit <MdEditCalendar className="ml-1 text-xl" />
+            </button>
+            <button
+              onClick={() => deleteUsers(row.index + 1)}
+              type="button"
+              className="flex items-center text-white bg-red-500 hover:bg-red-600 font-medium rounded-lg text-sm px-4 py-2"
+            >
+              Delete <MdDeleteForever className="ml-1 text-xl" />
+            </button>
+          </div>
+        ),
+        disableFilters: true, // Disable filtering on the Action column
+      },
+    ],
+    [updateUsers, deleteUsers]
+  );
+
+  // Use the useTable and useGlobalFilter hooks
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+    state,
+    setGlobalFilter,
+  } = useTable(
+    {
+      columns,
+      data: users,
+      defaultColumn: { Filter: null }, // Disable individual filters
+      globalFilter: (rows, id, filterValue) => {
+        return rows.filter((row) => {
+          const firstName = row.original.fname?.toLowerCase() || '';
+          const lastName = row.original.lname?.toLowerCase() || '';
+          const email = row.original.email?.toLowerCase() || '';
+          const searchValue = filterValue.toLowerCase();
+          return (
+            firstName.includes(searchValue) ||
+            lastName.includes(searchValue) ||
+            email.includes(searchValue)
+          );
+        });
+      },
+    },
+    useGlobalFilter // Enable global filtering
+  );
+
+  const addNewUser = () => {
+    navigateToAddUser('/');
+  };
+
+  return (
+    <div className="relative overflow-x-auto shadow-md sm:rounded-lg bg-gray-200">
+      <h1 className="text-2xl font-bold text-gray-800 pt-10 pb-10 text-center">
+        My Users Data Table
+      </h1>
+      <div className="flex justify-between items-center mb-4 px-4">
+        <div className="w-1/3">
+          {/* Global Search */}
+          <GlobalFilter
+            globalFilter={state.globalFilter}
+            setGlobalFilter={setGlobalFilter}
+          />
+        </div>
+        <button
+          onClick={addNewUser}
+          type="button"
+          className="text-white bg-green-700 hover:bg-green-800 font-medium rounded-lg text-sm px-5 py-2.5"
+        >
+          Add New User
+        </button>
+      </div>
+      <table
+        {...getTableProps()}
+        className="w-full text-sm text-left text-gray-500"
+      >
+        <thead className="text-xs text-white uppercase bg-black text-center">
+          {headerGroups.map((headerGroup) => (
+            <tr {...headerGroup.getHeaderGroupProps()}>
+              {headerGroup.headers.map((column) => (
+                <th
+                  {...column.getHeaderProps()}
+                  className="px-6 py-3"
+                >
+                  {column.render('Header')}
+                </th>
+              ))}
+            </tr>
+          ))}
+        </thead>
+        <tbody {...getTableBodyProps()}>
+          {rows.length > 0 ? (
+            rows.map((row) => {
+              prepareRow(row);
+              return (
+                <tr
+                  {...row.getRowProps()}
+                  className="bg-white border-b text-center"
+                >
+                  {row.cells.map((cell) => (
+                    <td
+                      {...cell.getCellProps()}
+                      className="px-6 py-4 font-medium text-gray-900"
+                    >
+                      {cell.render('Cell')}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })
+          ) : (
+            <tr>
+              <td colSpan={columns.length} className="text-center py-4">
+                No data found
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export default DataTable;

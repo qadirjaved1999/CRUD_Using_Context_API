@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useMyContext } from '../MyStore/UseMyContext';
 import { MdEditCalendar, MdDeleteForever } from 'react-icons/md';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTable, useGlobalFilter } from 'react-table'; // Import react-table hooks
 
 // Default UI for global filtering
@@ -21,16 +21,21 @@ function GlobalFilter({
   );
 }
 
-const DataTable = () => {
-  const { users, updateUsers, deleteUsers } = useMyContext(); 
+const DataTable = ({ onEditUser }) => {
+  const { users, updateUsers, deleteUsers, setInputValue, initialInputValue } = useMyContext();
   const navigateToAddUser = useNavigate();
+  
+  const addNewUser = () => {
+    navigateToAddUser('/users/form');
+    setInputValue(initialInputValue);
 
+  };
   // Define columns for react-table
   const columns = useMemo(
     () => [
       {
         Header: 'Id',
-        accessor: (_, index) => index + 1, // Since your data doesn't have an id field
+        accessor: (_, index) => index, // Since your data doesn't have an id field
         disableFilters: true, // Disable filtering on this column
       },
       {
@@ -64,15 +69,18 @@ const DataTable = () => {
         Header: 'Action',
         Cell: ({ row }) => (
           <div className="flex justify-center items-center">
+            {console.log("this id pass in URL from table =>",row.original.id)}
+            <Link to={`/users/form/${row.original.id}`}>
+              <button
+                onClick={() => onEditUser(row.original.id)}
+                type="button"
+                className="flex items-center text-white bg-green-500 hover:bg-green-600 font-medium rounded-lg text-sm px-4 py-2 mr-2"
+              >
+                Edit <MdEditCalendar className="ml-1 text-xl" />
+              </button>
+            </Link>
             <button
-              onClick={() => updateUsers(row.index)}
-              type="button"
-              className="flex items-center text-white bg-green-500 hover:bg-green-600 font-medium rounded-lg text-sm px-4 py-2 mr-2"
-            >
-              Edit <MdEditCalendar className="ml-1 text-xl" />
-            </button>
-            <button
-              onClick={() => deleteUsers(row.index + 1)}
+              onClick={() => deleteUsers(row.original.id)}
               type="button"
               className="flex items-center text-white bg-red-500 hover:bg-red-600 font-medium rounded-lg text-sm px-4 py-2"
             >
@@ -116,11 +124,6 @@ const DataTable = () => {
     },
     useGlobalFilter // Enable global filtering
   );
-
-  const addNewUser = () => {
-    navigateToAddUser('/');
-  };
-
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg bg-gray-200">
       <h1 className="text-2xl font-bold text-gray-800 pt-10 pb-10 text-center">
